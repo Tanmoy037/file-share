@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileShare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .upload-button, .copy-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .upload-button:hover, .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .link {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007bff;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            display: none;
+        }
+
+        #downloadLink {
+            text-decoration: none;
+            color: #6f42c1;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="logo.png" alt="FileShare Logo">
+        </div>
+        <input type="file" id="fileInput" style="display: none;" />
+        <button class="upload-button" onclick="document.getElementById('fileInput').click()">Share File</button>
+        <a id="downloadLink" style="display:none;">Download File</a>
+        <button class="copy-button" id="copyButton" onclick="copyToClipboard()">Copy Link</button>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', async function () {
+            const file = this.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://localhost:8080/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.text();
+                if (response.ok) {
+                    console.log('File uploaded successfully:', result);
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = result;
+                    downloadLink.style.display = 'block';
+                    
+                    // Display the copy button
+                    const copyButton = document.getElementById('copyButton');
+                    copyButton.style.display = 'inline-block';
+                    copyButton.dataset.clipboardText = result;
+                } else {
+                    console.error('Error uploading file:', result);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        function copyToClipboard() {
+            const copyButton = document.getElementById('copyButton');
+            const textToCopy = copyButton.dataset.clipboardText;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+
+</html>
