@@ -27,7 +27,8 @@
             margin-bottom: 20px;
         }
 
-        .upload-button, .copy-button {
+        .upload-button,
+        .copy-button {
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
@@ -38,7 +39,8 @@
             margin-top: 10px;
         }
 
-        .upload-button:hover, .copy-button:hover {
+        .upload-button:hover,
+        .copy-button:hover {
             background-color: #0056b3;
         }
 
@@ -83,7 +85,7 @@
             formData.append('file', file);
 
             try {
-                const response = await fetch('http://localhost:8080/upload', {
+                const response = await fetch('http://43.205.228.74:8080/upload', {
                     method: 'POST',
                     body: formData,
                 });
@@ -111,11 +113,23 @@
             const copyButton = document.getElementById('copyButton');
             const textToCopy = copyButton.dataset.clipboardText;
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
+            console.log("test : " )
+            if (navigator.clipboard) {
+                console.log(navigator.clipboard)
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            } else {
+                const tempInput = document.createElement('input');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
                 alert('Link copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+            }
         }
     </script>
 </body>
